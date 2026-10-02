@@ -32,7 +32,7 @@ const AppLayout: React.FC = () => {
 
         {/* Mobile Top App Bar (Mobile only) */}
         <div className="lg:hidden">
-          <AndroidTopBar />
+          <AndroidTopBar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         </div>
 
         {/* Dynamic Page Content */}

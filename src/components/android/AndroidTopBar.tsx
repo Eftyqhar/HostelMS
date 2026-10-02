@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Menu,
   ArrowLeft,
   Bell,
   Search,
@@ -13,7 +14,11 @@ import {
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
-export const AndroidTopBar: React.FC = () => {
+interface AndroidTopBarProps {
+  onToggleSidebar?: () => void;
+}
+
+export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar }) => {
   const {
     role,
     setRole,
@@ -74,17 +79,29 @@ export const AndroidTopBar: React.FC = () => {
 
         {/* Main App Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3">
-        {/* Left: Back Arrow or Brand Title */}
-        <div className="flex items-center gap-2">
-          {!isHome ? (
+        {/* Left: Menu Button / Back Arrow + Brand Title */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors active:scale-90 cursor-pointer"
+              title="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+
+          {!isHome && (
             <button
               onClick={() => setActiveSidebarTab('Dashboard')}
-              className="p-1.5 -ml-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-90"
+              className="p-1.5 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors active:scale-90 cursor-pointer"
               title="Back to Home"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
-          ) : (
+          )}
+
+          {isHome && !onToggleSidebar && (
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs">
                 H

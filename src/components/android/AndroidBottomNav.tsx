@@ -32,7 +32,7 @@ export const AndroidBottomNav: React.FC = () => {
   const tabs = role === 'admin' ? adminTabs : studentTabs;
 
   return (
-    <div className="sticky bottom-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-lg shrink-0">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-lg lg:hidden">
       <div className="flex items-center justify-around px-3 pt-2 pb-1.5 max-w-2xl sm:max-w-3xl mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
