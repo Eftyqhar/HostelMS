@@ -19,6 +19,7 @@ import { StudentSettingsView } from '../student/StudentSettingsView';
 import { StudentMyRoomView } from '../student/StudentMyRoomView';
 import { AdminMealsView } from '../admin/AdminMealsView';
 import { StudentMealsView } from '../student/StudentMealsView';
+import { AndroidMoreView } from '../android/AndroidMoreView';
 
 export const TabContentView: React.FC = () => {
   const { activeSidebarTab, setActiveSidebarTab, role, openModal } = useHostel();
@@ -238,6 +239,9 @@ export const TabContentView: React.FC = () => {
             </form>
           </div>
         );
+
+      case 'More':
+        return <AndroidMoreView />;
 
       default:
         return (
