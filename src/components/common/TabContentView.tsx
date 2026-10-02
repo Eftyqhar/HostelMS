@@ -2,7 +2,8 @@ import React from 'react';
 import { useHostel } from '../../context/HostelContext';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { StudentsTable } from '../admin/StudentsTable';
-import { ComplaintsTable } from '../admin/ComplaintsTable';
+import { AdminComplaintsView } from '../admin/AdminComplaintsView';
+import { StudentComplaintsView } from '../student/StudentComplaintsView';
 import { HostelRoomMap } from '../admin/HostelRoomMap';
 import { TodayVisitors } from '../admin/TodayVisitors';
 import { StudentNotices } from '../student/StudentNotices';
@@ -61,20 +62,7 @@ export const TabContentView: React.FC = () => {
         return <StudentMealsView />;
 
       case 'Complaints':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <p className="text-xs text-slate-500">Room and hostel infrastructure complaint resolutions</p>
-              <button
-                onClick={() => openModal('newComplaint')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold text-xs"
-              >
-                <Plus className="w-4 h-4" /> New Complaint
-              </button>
-            </div>
-            <ComplaintsTable />
-          </div>
-        );
+        return role === 'admin' ? <AdminComplaintsView /> : <StudentComplaintsView />;
 
       case 'Visitors':
       case 'Visitor Request':
