@@ -32,8 +32,8 @@ export const AndroidBottomNav: React.FC = () => {
   const tabs = role === 'admin' ? adminTabs : studentTabs;
 
   return (
-    <div className="sticky bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-lg shrink-0">
-      <div className="flex items-center justify-around px-2 pt-2 pb-1 max-w-lg mx-auto">
+    <div className="sticky bottom-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-lg shrink-0">
+      <div className="flex items-center justify-around px-3 pt-2 pb-1.5 max-w-2xl sm:max-w-3xl mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSidebarTab === tab.name;
@@ -46,10 +46,10 @@ export const AndroidBottomNav: React.FC = () => {
             >
               {/* Material 3 Pill Indicator */}
               <div
-                className={`flex items-center justify-center px-4 py-1 rounded-full transition-all duration-200 ${
+                className={`flex items-center justify-center px-4 py-1.5 rounded-full transition-all duration-200 ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs scale-105'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -57,8 +57,8 @@ export const AndroidBottomNav: React.FC = () => {
 
               {/* Label */}
               <span
-                className={`text-[10px] mt-1 tracking-tight transition-colors ${
-                  isActive ? 'font-black text-blue-600' : 'font-semibold text-slate-500'
+                className={`text-[11px] mt-1 tracking-tight transition-colors ${
+                  isActive ? 'font-black text-blue-600 dark:text-blue-400' : 'font-semibold text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {tab.label}
@@ -68,9 +68,9 @@ export const AndroidBottomNav: React.FC = () => {
         })}
       </div>
 
-      {/* Android Gesture Navigation Indicator Line */}
-      <div className="flex justify-center pb-1">
-        <div className="w-32 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+      {/* Android Gesture Navigation Indicator Line - Only on mobile */}
+      <div className="flex justify-center pb-1 sm:hidden">
+        <div className="w-28 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
       </div>
     </div>
   );
