@@ -160,8 +160,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </div>
               <p className="text-[11px] text-slate-400">Contact Hostel Office</p>
               <button
-                onClick={() => openModal('newComplaint', { category: 'Other', subject: 'Inquiry to Hostel Office' })}
-                className="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-500 shadow-sm transition-colors"
+                onClick={() => openModal('sendMessage')}
+                className="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-500 shadow-sm transition-colors cursor-pointer"
               >
                 Send Message
               </button>

@@ -6,6 +6,7 @@ import { NewComplaintModal } from './NewComplaintModal';
 import { VisitorModal } from './VisitorModal';
 import { RoomDetailModal } from './RoomDetailModal';
 import { InvoiceModal } from './InvoiceModal';
+import { SendMessageModal } from './SendMessageModal';
 
 export const ModalsContainer: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ export const ModalsContainer: React.FC = () => {
       <VisitorModal />
       <RoomDetailModal />
       <InvoiceModal />
+      <SendMessageModal />
     </>
   );
 };

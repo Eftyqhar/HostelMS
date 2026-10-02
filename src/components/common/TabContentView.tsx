@@ -112,8 +112,19 @@ export const TabContentView: React.FC = () => {
 
       case 'Contact':
         return (
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4 text-xs text-slate-700">
-            <h3 className="text-base font-bold text-slate-800">Hostel Office Contacts</h3>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5 text-xs text-slate-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-bold text-slate-800">Hostel Office & Warden Contacts</h3>
+                <p className="text-slate-500 mt-0.5">Reach out to administration for inquiries, courier delivery, or emergency support</p>
+              </div>
+              <button
+                onClick={() => openModal('sendMessage')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+              >
+                Send Direct Message
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                 <p className="font-bold text-slate-800">Chief Hostel Warden</p>
