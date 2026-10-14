@@ -14,7 +14,7 @@ import { HomePage } from './components/home/HomePage';
 import { AuthPage } from './components/auth/AuthPage';
 
 const AppLayout: React.FC = () => {
-  const { role, activeSidebarTab, darkMode, viewMode } = useHostel();
+  const { role, activeSidebarTab, darkMode, viewMode, isAuthenticated } = useHostel();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (viewMode === 'home') {
@@ -27,7 +27,8 @@ const AppLayout: React.FC = () => {
     );
   }
 
-  if (viewMode === 'auth') {
+  // If on auth page OR attempting to access protected portal without being authenticated
+  if (viewMode === 'auth' || !isAuthenticated) {
     return (
       <div className={darkMode ? 'dark' : ''}>
         <AuthPage />

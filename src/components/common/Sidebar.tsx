@@ -22,7 +22,8 @@ import {
   Headphones,
   ChevronDown,
   X,
-  Home
+  Home,
+  LogOut
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -32,7 +33,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { role, activeSidebarTab, setActiveSidebarTab, openModal, setViewMode } = useHostel();
+  const { role, activeSidebarTab, setActiveSidebarTab, openModal, setViewMode, logout } = useHostel();
 
   const adminNavItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
@@ -148,6 +149,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </button>
             );
           })}
+
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                if (window.innerWidth < 1024) onClose();
+                logout();
+              }}
+              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-950/40 border border-rose-900/30 transition-all duration-150 cursor-pointer"
+            >
+              <LogOut className="w-4 h-4 text-rose-400" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
 
         {/* Bottom Section */}

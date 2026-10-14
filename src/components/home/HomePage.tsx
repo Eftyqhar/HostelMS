@@ -147,7 +147,9 @@ export const HomePage: React.FC = () => {
     setActiveSidebarTab,
     darkMode,
     toggleDarkMode,
-    showToast
+    showToast,
+    isAuthenticated,
+    currentUser
   } = useHostel();
 
   const navigate = useNavigate();
@@ -160,6 +162,18 @@ export const HomePage: React.FC = () => {
   });
 
   const navigateTo = (portalRole: 'admin' | 'student', tab: string, path: string) => {
+    if (!isAuthenticated) {
+      showToast('Authentication required: Please sign in to access the hostel portal.');
+      navigateToAuth();
+      return;
+    }
+
+    if (currentUser?.role === 'student' && portalRole === 'admin') {
+      showToast('Access denied: Administrator privileges required.');
+      navigate('/student');
+      return;
+    }
+
     setRole(portalRole);
     setActiveSidebarTab(tab);
     setViewMode('portal');
@@ -167,11 +181,15 @@ export const HomePage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToAuth = (initialRole: 'student' | 'admin' = 'student') => {
-    setRole(initialRole);
+  const navigateToAuth = (_initialRole?: 'student' | 'admin') => {
     setMobileMenuOpen(false);
-    setViewMode('auth');
-    navigate('/login');
+    if (isAuthenticated) {
+      setViewMode('portal');
+      navigate(currentUser?.role === 'admin' ? '/admin' : '/student');
+    } else {
+      setViewMode('auth');
+      navigate('/login');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -290,16 +308,16 @@ export const HomePage: React.FC = () => {
               {darkMode ? <Moon className="w-4 h-4 fill-amber-300 text-amber-300" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </button>
 
-            {/* Get Started Button (Opens Login / Registration Portal) */}
+            {/* Get Started / Portal Button */}
             <button
-              onClick={() => navigateToAuth('student')}
+              onClick={() => navigateToAuth()}
               className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs transition-all cursor-pointer shadow-md active:scale-95 ${
                 darkMode
                   ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
                   : 'bg-[#0c4a34] hover:bg-[#083525] text-white font-bold'
               }`}
             >
-              <span>Get Started</span>
+              <span>{isAuthenticated ? 'Go to Portal' : 'Get Started'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
@@ -318,14 +336,14 @@ export const HomePage: React.FC = () => {
           <div className="lg:hidden px-4 pt-2 pb-5 bg-white dark:bg-[#090e17] border-b border-slate-200 dark:border-[#141f30] space-y-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="mb-3">
               <button
-                onClick={() => navigateToAuth('student')}
+                onClick={() => navigateToAuth()}
                 className={`w-full flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-sm ${
                   darkMode
                     ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
                     : 'bg-[#0c4a34] hover:bg-[#083525] text-white font-bold'
                 }`}
               >
-                <span>Get Started</span>
+                <span>{isAuthenticated ? 'Go to Portal' : 'Get Started'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

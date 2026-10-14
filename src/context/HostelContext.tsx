@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type {
   Role,
+  UserSession,
   Student,
   Room,
   Complaint,
@@ -29,6 +30,10 @@ import { getTabFromPath, getPathFromTab } from '../routes/navigation';
 interface HostelContextType {
   role: Role;
   setRole: (role: Role) => void;
+  isAuthenticated: boolean;
+  currentUser: UserSession | null;
+  login: (session: UserSession) => void;
+  logout: () => void;
   currentStudent: Student;
   students: Student[];
   rooms: Room[];
@@ -76,7 +81,19 @@ interface HostelContextType {
 const HostelContext = createContext<HostelContextType | undefined>(undefined);
 
 export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<UserSession | null>(() => {
+    try {
+      const saved = localStorage.getItem('hostel_user_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const isAuthenticated = !!currentUser;
+
   const [role, setRoleState] = useState<Role>(() => {
+    if (currentUser?.role) return currentUser.role;
     return (localStorage.getItem('hostel_role') as Role) || 'admin';
   });
 
@@ -145,22 +162,53 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const location = useLocation();
 
   const [activeSidebarTab, setActiveSidebarTabState] = useState(() => {
-    return getTabFromPath(window.location.pathname, role).tab;
+    const route = getTabFromPath(window.location.pathname, 'admin');
+    const hasSession = !!localStorage.getItem('hostel_user_session');
+    if (route.viewMode === 'portal' && !hasSession) {
+      return 'Auth';
+    }
+    return route.tab;
   });
 
   const [viewMode, setViewModeState] = useState<'home' | 'portal' | 'auth'>(() => {
-    return getTabFromPath(window.location.pathname, role).viewMode;
+    const route = getTabFromPath(window.location.pathname, 'admin');
+    const hasSession = !!localStorage.getItem('hostel_user_session');
+    if (route.viewMode === 'portal' && !hasSession) {
+      return 'auth';
+    }
+    return route.viewMode;
   });
 
-  // Sync route changes with state (e.g. user navigation, browser back/forward, direct URL entry)
+  // Sync route changes with state and enforce authentication route guards
   useEffect(() => {
     const routeInfo = getTabFromPath(location.pathname, role);
+
+    // Authentication Guard:
+    // If user attempts to access any protected portal route without being authenticated
+    if (routeInfo.viewMode === 'portal' && !currentUser) {
+      setViewModeState('auth');
+      setActiveSidebarTabState('Auth');
+      if (location.pathname !== '/login') {
+        navigate('/login', { replace: true });
+        showToast('Please sign in to access the hostel portal.');
+      }
+      return;
+    }
+
+    // Role-based Authorization Guard:
+    // If student tries to access admin-only routes (/admin, /students, etc.)
+    if (currentUser && currentUser.role === 'student' && routeInfo.roleOverride === 'admin') {
+      showToast('Access denied: Administrator privileges required.');
+      navigate('/student', { replace: true });
+      return;
+    }
+
     setActiveSidebarTabState(routeInfo.tab);
     setViewModeState(routeInfo.viewMode);
     if (routeInfo.roleOverride && routeInfo.roleOverride !== role) {
       setRoleState(routeInfo.roleOverride);
     }
-  }, [location.pathname, role]);
+  }, [location.pathname, role, currentUser, navigate]);
 
   const setActiveSidebarTab = useCallback((tab: string) => {
     setActiveSidebarTabState(tab);
@@ -297,8 +345,53 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setModalData(null);
   };
 
-  // The logged-in student in student mode is Rahim Ahmed
-  const currentStudent = students.find(s => s.id === '1021') || students[0];
+  const login = useCallback((session: UserSession) => {
+    setCurrentUser(session);
+    setRoleState(session.role);
+    localStorage.setItem('hostel_user_session', JSON.stringify(session));
+    localStorage.setItem('hostel_role', session.role);
+    setViewModeState('portal');
+    setActiveSidebarTabState('Dashboard');
+    if (session.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/student');
+    }
+  }, [navigate]);
+
+  const logout = useCallback(() => {
+    setCurrentUser(null);
+    localStorage.removeItem('hostel_user_session');
+    setViewModeState('auth');
+    setActiveSidebarTabState('Auth');
+    navigate('/login');
+    showToast('You have been logged out.');
+  }, [navigate]);
+
+  // Resolve the logged-in student (or fallback to Rahim Ahmed)
+  const currentStudent = useMemo<Student>(() => {
+    if (currentUser && currentUser.role === 'student') {
+      const found = students.find(
+        s => s.id === currentUser.id || s.email.toLowerCase() === currentUser.email.toLowerCase()
+      );
+      if (found) return found;
+      return {
+        id: currentUser.id,
+        name: currentUser.name,
+        avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+        department: currentUser.department || 'Computer Technology',
+        semester: '4th Semester',
+        phone: '+880 1712-345678',
+        email: currentUser.email,
+        room: currentUser.room || 'B-203',
+        block: 'Block B',
+        bedNo: 'B-203-01',
+        status: 'Active',
+        checkInDate: '15 Jan 2024'
+      };
+    }
+    return students.find(s => s.id === '1021') || students[0];
+  }, [currentUser, students]);
 
   const addStudent = async (studentData: Omit<Student, 'id'> & { id?: string }) => {
     const newId = studentData.id || String(1020 + students.length + 1);
@@ -575,6 +668,10 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       value={{
         role,
         setRole,
+        isAuthenticated,
+        currentUser,
+        login,
+        logout,
         currentStudent,
         students,
         rooms,

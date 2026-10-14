@@ -1,5 +1,15 @@
 export type Role = 'admin' | 'student';
 
+export interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  avatar?: string;
+  department?: string;
+  room?: string;
+}
+
 export interface Student {
   id: string; // e.g. "1021"
   name: string;

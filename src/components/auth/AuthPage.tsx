@@ -18,12 +18,16 @@ import { useNavigate } from 'react-router-dom';
 
 export const AuthPage: React.FC = () => {
   const {
-    setRole,
+    login,
+    students,
     setViewMode,
     darkMode,
     toggleDarkMode,
     showToast,
-    addStudent
+    addStudent,
+    isAuthenticated,
+    currentUser,
+    logout
   } = useHostel();
 
   const navigate = useNavigate();
@@ -73,15 +77,26 @@ export const AuthPage: React.FC = () => {
       id === '999';
 
     if (isAdmin) {
-      setRole('admin');
-      setViewMode('portal');
+      login({
+        id: 'admin',
+        name: 'Chief Warden',
+        email: id.includes('@') ? id : 'admin@hostelms.edu',
+        role: 'admin'
+      });
       showToast('Welcome back, Warden! Logged into Administration Portal.');
-      navigate('/admin');
     } else {
-      setRole('student');
-      setViewMode('portal');
-      showToast('Welcome back! Logged into Student Self-Service Portal.');
-      navigate('/student');
+      const matched = students.find(
+        s => s.id.toLowerCase() === id || s.email.toLowerCase() === id
+      );
+      login({
+        id: matched ? matched.id : id,
+        name: matched ? matched.name : 'Student User',
+        email: matched ? matched.email : `${id}@spi.edu.bd`,
+        role: 'student',
+        room: matched ? matched.room : 'B-203',
+        department: matched ? matched.department : 'Computer Technology'
+      });
+      showToast(`Welcome back, ${matched ? matched.name : 'Student'}! Logged into Student Portal.`);
     }
   };
 
@@ -124,25 +139,38 @@ export const AuthPage: React.FC = () => {
       checkInDate: 'Today'
     });
 
-    setRole('student');
-    setViewMode('portal');
+    login({
+      id: regForm.studentId,
+      name: regForm.name,
+      email: regForm.email,
+      role: 'student',
+      room: roomAssignment,
+      department: regForm.department
+    });
     showToast(`Account created successfully! Welcome to SPI Hostel, ${regForm.name}.`);
-    navigate('/student');
   };
 
   // Quick 1-Click Fast Login Helpers
   const quickLoginAsStudent = () => {
-    setRole('student');
-    setViewMode('portal');
+    login({
+      id: '1021',
+      name: 'Rahim Ahmed',
+      email: 'rahim.cse@spi.edu.bd',
+      role: 'student',
+      room: 'B-203',
+      department: 'Computer Technology'
+    });
     showToast('Signed in as Student: Rahim Ahmed (Room B-203)');
-    navigate('/student');
   };
 
   const quickLoginAsAdmin = () => {
-    setRole('admin');
-    setViewMode('portal');
+    login({
+      id: 'admin',
+      name: 'Chief Warden Office',
+      email: 'admin@hostelms.edu',
+      role: 'admin'
+    });
     showToast('Signed in as Admin: Chief Warden Office');
-    navigate('/admin');
   };
 
   return (
@@ -204,7 +232,43 @@ export const AuthPage: React.FC = () => {
       </header>
 
       {/* 2. Main Authentication Container */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+        {/* Active Session Notification if already authenticated */}
+        {isAuthenticated && currentUser && (
+          <div className="w-full max-w-4xl mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
+                ✓
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 dark:text-white">
+                  You are signed in as <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{currentUser.name}</span> ({currentUser.role === 'admin' ? 'Administrator' : 'Student'})
+                </p>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  ID: {currentUser.id} • {currentUser.email}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => {
+                  setViewMode('portal');
+                  navigate(currentUser.role === 'admin' ? '/admin' : '/student');
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-500 transition-all cursor-pointer shadow-xs"
+              >
+                Go to Dashboard →
+              </button>
+              <button
+                onClick={logout}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-slate-200/90 dark:border-[#162338] shadow-2xl bg-white dark:bg-[#09101c] grid grid-cols-1 lg:grid-cols-12">
           
           {/* Left Decorative Banner (Desktop) */}

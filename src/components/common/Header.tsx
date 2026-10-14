@@ -23,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const {
     role,
     setViewMode,
+    logout,
     currentStudent,
     searchQuery,
     setSearchQuery,
@@ -231,8 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                   <button
                     onClick={() => {
                       setShowProfileMenu(false);
-                      setViewMode('auth');
-                      window.history.pushState({}, '', '/login');
+                      logout();
                     }}
                     className="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center gap-2 font-medium transition-colors"
                   >
