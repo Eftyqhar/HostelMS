@@ -7,6 +7,7 @@ import { AndroidBottomNav } from './components/android/AndroidBottomNav';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { StudentDashboard } from './components/student/StudentDashboard';
 import { TabContentView } from './components/common/TabContentView';
+import { BrowserRouter } from 'react-router-dom';
 import { ModalsContainer } from './components/modals/ModalsContainer';
 import { Toast } from './components/common/Toast';
 import { HomePage } from './components/home/HomePage';
@@ -74,9 +75,11 @@ const AppLayout: React.FC = () => {
 
 export function App() {
   return (
-    <HostelProvider>
-      <AppLayout />
-    </HostelProvider>
+    <BrowserRouter>
+      <HostelProvider>
+        <AppLayout />
+      </HostelProvider>
+    </BrowserRouter>
   );
 }
 

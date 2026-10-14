@@ -23,6 +23,8 @@ import {
   INITIAL_ACTIVITIES
 } from '../data/mockData';
 import { api } from '../services/api';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getTabFromPath, getPathFromTab } from '../routes/navigation';
 
 interface HostelContextType {
   role: Role;
@@ -117,20 +119,55 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [activities, setActivities] = useState<Activity[]>(INITIAL_ACTIVITIES);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSidebarTab, setActiveSidebarTab] = useState('Dashboard');
   const [selectedBlock, setSelectedBlock] = useState<'Block A' | 'Block B' | 'Block C'>('Block A');
   const [selectedFloor, setSelectedFloor] = useState('2nd Floor');
   const [darkMode, setDarkMode] = useState(false);
   const [backendConnected, setBackendConnected] = useState(false);
 
-  const [viewMode, setViewModeState] = useState<'home' | 'portal'>(() => {
-    return (localStorage.getItem('hostel_view_mode') as 'home' | 'portal') || 'home';
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activeSidebarTab, setActiveSidebarTabState] = useState(() => {
+    return getTabFromPath(window.location.pathname, role).tab;
   });
 
-  const setViewMode = (mode: 'home' | 'portal') => {
+  const [viewMode, setViewModeState] = useState<'home' | 'portal'>(() => {
+    return getTabFromPath(window.location.pathname, role).viewMode;
+  });
+
+  // Sync route changes with state (e.g. user navigation, browser back/forward, direct URL entry)
+  useEffect(() => {
+    const routeInfo = getTabFromPath(location.pathname, role);
+    setActiveSidebarTabState(routeInfo.tab);
+    setViewModeState(routeInfo.viewMode);
+    if (routeInfo.roleOverride && routeInfo.roleOverride !== role) {
+      setRoleState(routeInfo.roleOverride);
+    }
+  }, [location.pathname, role]);
+
+  const setActiveSidebarTab = useCallback((tab: string) => {
+    setActiveSidebarTabState(tab);
+    setViewModeState('portal');
+    const targetPath = getPathFromTab(tab);
+    if (location.pathname !== targetPath) {
+      navigate(targetPath);
+    }
+  }, [navigate, location.pathname]);
+
+  const setViewMode = useCallback((mode: 'home' | 'portal') => {
     setViewModeState(mode);
     localStorage.setItem('hostel_view_mode', mode);
-  };
+    if (mode === 'home') {
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
+    } else {
+      const targetPath = getPathFromTab(activeSidebarTab);
+      if (location.pathname !== targetPath) {
+        navigate(targetPath);
+      }
+    }
+  }, [navigate, location.pathname, activeSidebarTab]);
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [modalData, setModalData] = useState<any>(null);
