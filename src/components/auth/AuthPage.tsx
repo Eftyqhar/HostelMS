@@ -7,7 +7,6 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Mail,
   ArrowLeft,
   Moon,
   Sun,
@@ -19,7 +18,6 @@ import { useNavigate } from 'react-router-dom';
 
 export const AuthPage: React.FC = () => {
   const {
-    role,
     setRole,
     setViewMode,
     darkMode,
@@ -32,20 +30,18 @@ export const AuthPage: React.FC = () => {
 
   // Mode: 'signin' | 'register'
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
-  // Selected portal role: 'student' | 'admin'
-  const [selectedRole, setSelectedRole] = useState<'student' | 'admin'>(role || 'student');
   // Password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Sign In Form State
+  // Unified Sign In Form State
   const [loginForm, setLoginForm] = useState({
-    identifier: selectedRole === 'admin' ? 'admin@spi.edu.bd' : '1021',
+    identifier: '1021',
     password: 'password123',
     rememberMe: true
   });
 
-  // Registration Form State
+  // Unified Registration Form State
   const [regForm, setRegForm] = useState({
     name: '',
     studentId: '',
@@ -58,34 +54,38 @@ export const AuthPage: React.FC = () => {
     confirmPassword: ''
   });
 
-  const handleRoleChange = (newRole: 'student' | 'admin') => {
-    setSelectedRole(newRole);
-    setLoginForm((prev) => ({
-      ...prev,
-      identifier: newRole === 'admin' ? 'admin@spi.edu.bd' : '1021'
-    }));
-  };
-
+  // Unified Single Sign In Handler (Auto-detects student or admin credentials)
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginForm.identifier || !loginForm.password) {
-      showToast('Please enter your credentials to log in.');
+    const id = loginForm.identifier.trim().toLowerCase();
+
+    if (!id || !loginForm.password) {
+      showToast('Please enter your Student ID or Email and Password.');
       return;
     }
 
-    // Set role in context
-    setRole(selectedRole);
-    setViewMode('portal');
+    // Auto-detect role: admin/warden keywords or admin email
+    const isAdmin =
+      id === 'admin' ||
+      id.includes('admin') ||
+      id.includes('warden') ||
+      id === '0' ||
+      id === '999';
 
-    if (selectedRole === 'admin') {
-      showToast('Welcome back, Chief Warden! Logged into Warden Administration Portal.');
+    if (isAdmin) {
+      setRole('admin');
+      setViewMode('portal');
+      showToast('Welcome back, Warden! Logged into Administration Portal.');
       navigate('/admin');
     } else {
-      showToast(`Welcome back, Rahim Ahmed! Logged into Student Self-Service Portal.`);
+      setRole('student');
+      setViewMode('portal');
+      showToast('Welcome back! Logged into Student Self-Service Portal.');
       navigate('/student');
     }
   };
 
+  // Unified Registration Handler
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (!regForm.name || !regForm.studentId || !regForm.email || !regForm.password) {
@@ -98,9 +98,17 @@ export const AuthPage: React.FC = () => {
       return;
     }
 
-    // Add to students list
-    const roomAssignment = regForm.roomType.includes('Single') ? 'A-101' : regForm.roomType.includes('Double') ? 'B-205' : 'C-302';
-    const blockAssignment = regForm.roomType.includes('Single') ? 'Block A' : regForm.roomType.includes('Double') ? 'Block B' : 'Block C';
+    const roomAssignment = regForm.roomType.includes('Single')
+      ? 'A-101'
+      : regForm.roomType.includes('Double')
+      ? 'B-205'
+      : 'C-302';
+    const blockAssignment = regForm.roomType.includes('Single')
+      ? 'Block A'
+      : regForm.roomType.includes('Double')
+      ? 'Block B'
+      : 'Block C';
+
     addStudent({
       id: regForm.studentId,
       name: regForm.name,
@@ -118,7 +126,7 @@ export const AuthPage: React.FC = () => {
 
     setRole('student');
     setViewMode('portal');
-    showToast(`Account successfully registered! Welcome to SPI Hostel, ${regForm.name}.`);
+    showToast(`Account created successfully! Welcome to SPI Hostel, ${regForm.name}.`);
     navigate('/student');
   };
 
@@ -199,22 +207,22 @@ export const AuthPage: React.FC = () => {
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-4xl rounded-3xl overflow-hidden border border-slate-200/90 dark:border-[#162338] shadow-2xl bg-white dark:bg-[#09101c] grid grid-cols-1 lg:grid-cols-12">
           
-          {/* Left Hero / Decorative Banner (Hidden on mobile) */}
+          {/* Left Decorative Banner (Desktop) */}
           <div className="hidden lg:flex lg:col-span-5 p-8 bg-[#0c4a34] dark:bg-[#08151c] text-white flex-col justify-between relative overflow-hidden dark:border-r dark:border-[#162338]">
             <div className="relative z-10 space-y-6">
               {/* Pill badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 dark:bg-[#0d2a20] text-emerald-200 dark:text-[#2ee693] text-[10px] font-extrabold tracking-wider uppercase border border-white/10 dark:border-[#134e3b]">
                 <Sparkles className="w-3 h-3" />
-                <span>OFFICIAL PORTAL ACCESS</span>
+                <span>OFFICIAL HOSTEL PORTAL</span>
               </div>
 
               <div>
                 <h2 className="text-2xl font-black text-white leading-tight">
                   Sirajganj Polytechnic <br />
-                  <span className="text-emerald-300 dark:text-[#2ee693]">Hostel Management</span>
+                  <span className="text-emerald-300 dark:text-[#2ee693]">Hostel Portal</span>
                 </h2>
                 <p className="text-xs text-emerald-100/90 dark:text-slate-300 mt-2 leading-relaxed">
-                  Seamless portal for students and wardens to manage rooms, meal coupons, digital fee payments, and notifications.
+                  Sign in with your Student ID or administrative credentials to access your rooms, meals, payments, and notices.
                 </p>
               </div>
 
@@ -250,10 +258,10 @@ export const AuthPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick One-Click Fast Login Pills */}
+            {/* Quick One-Click Fast Login Demo Helpers */}
             <div className="relative z-10 pt-6 border-t border-white/10 dark:border-[#162338] space-y-2">
               <p className="text-[10px] font-bold text-emerald-200 dark:text-slate-400 uppercase tracking-wider">
-                ⚡ Quick 1-Click Demo Login:
+                ⚡ Quick 1-Click Fast Login:
               </p>
               <div className="space-y-1.5">
                 <button
@@ -263,7 +271,7 @@ export const AuthPage: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-emerald-300 dark:text-[#2ee693]" />
-                    <span>Student (Rahim Ahmed)</span>
+                    <span>Student: Rahim Ahmed (Room B-203)</span>
                   </span>
                   <ArrowRight className="w-3 h-3 text-emerald-300 dark:text-[#2ee693]" />
                 </button>
@@ -275,7 +283,7 @@ export const AuthPage: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-amber-300" />
-                    <span>Chief Warden (Admin)</span>
+                    <span>Admin: Chief Warden Office</span>
                   </span>
                   <ArrowRight className="w-3 h-3 text-amber-300" />
                 </button>
@@ -288,10 +296,10 @@ export const AuthPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Form Container */}
+          {/* Right Form Container (Unified Single Form) */}
           <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
             <div>
-              {/* Mode Switcher Tabs: Sign In vs Create Account */}
+              {/* Only 2 Tabs: Sign In vs Register */}
               <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-[#0c1524] border border-slate-200 dark:border-[#162338] mb-6">
                 <button
                   type="button"
@@ -318,60 +326,38 @@ export const AuthPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Role Selection Tabs */}
-              <div className="mb-6">
-                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  Select Portal Role
+              {/* Title & Prompt */}
+              <div className="mb-5">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                  {authMode === 'signin' ? 'Sign In to Your Account' : 'Register for Hostel Accommodation'}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {authMode === 'signin'
+                    ? 'Enter your Student ID or Admin credentials to access the portal.'
+                    : 'Fill out the form below to register your student hostel profile.'}
                 </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange('student')}
-                    className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                      selectedRole === 'student'
-                        ? 'bg-emerald-50 dark:bg-[#092b21] border-emerald-500 dark:border-[#2ee693] text-[#0c4a34] dark:text-[#2ee693] shadow-xs ring-2 ring-emerald-500/20'
-                        : 'bg-white dark:bg-[#0c1524] border-slate-200 dark:border-[#162338] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#101c2e]'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Student Portal</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRoleChange('admin')}
-                    className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                      selectedRole === 'admin'
-                        ? 'bg-blue-50 dark:bg-[#0b244d] border-blue-500 dark:border-blue-400 text-blue-700 dark:text-blue-300 shadow-xs ring-2 ring-blue-500/20'
-                        : 'bg-white dark:bg-[#0c1524] border-slate-200 dark:border-[#162338] text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#101c2e]'
-                    }`}
-                  >
-                    <Shield className="w-4 h-4" />
-                    <span>Warden / Admin</span>
-                  </button>
-                </div>
               </div>
 
               {/* ============================================================== */}
-              {/* SIGN IN FORM */}
+              {/* UNIFIED SINGLE SIGN IN FORM */}
               {/* ============================================================== */}
               {authMode === 'signin' && (
                 <form onSubmit={handleSignIn} className="space-y-4">
                   {/* Identifier Input */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      {selectedRole === 'admin' ? 'Warden Email or Username' : 'Student ID or Roll No.'}
+                      Student ID, Username or Email
                     </label>
                     <div className="relative">
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                        {selectedRole === 'admin' ? <Mail className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                        <User className="w-4 h-4" />
                       </div>
                       <input
                         type="text"
                         required
                         value={loginForm.identifier}
                         onChange={(e) => setLoginForm({ ...loginForm, identifier: e.target.value })}
-                        placeholder={selectedRole === 'admin' ? 'admin@spi.edu.bd' : 'e.g. 1021'}
+                        placeholder="e.g. 1021 or admin@spi.edu.bd"
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0c1626] border border-slate-200 dark:border-[#1a2b42] focus:outline-hidden focus:border-[#0c4a34] dark:focus:border-[#2ee693] text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                       />
                     </div>
@@ -385,7 +371,7 @@ export const AuthPage: React.FC = () => {
                       </label>
                       <button
                         type="button"
-                        onClick={() => showToast('Password reset link sent to your registered email or phone.')}
+                        onClick={() => showToast('Password reset link sent to your registered phone or email.')}
                         className="text-[11px] font-semibold text-blue-600 dark:text-[#2ee693] hover:underline cursor-pointer"
                       >
                         Forgot password?
@@ -435,14 +421,14 @@ export const AuthPage: React.FC = () => {
                         : 'bg-[#0c4a34] hover:bg-[#083525] text-white font-bold'
                     }`}
                   >
-                    <span>{selectedRole === 'admin' ? 'Sign In as Warden' : 'Sign In as Student'}</span>
+                    <span>Sign In</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
               )}
 
               {/* ============================================================== */}
-              {/* REGISTRATION FORM */}
+              {/* UNIFIED REGISTRATION FORM */}
               {/* ============================================================== */}
               {authMode === 'register' && (
                 <form onSubmit={handleRegister} className="space-y-3.5 text-xs">
