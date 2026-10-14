@@ -121,8 +121,25 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBlock, setSelectedBlock] = useState<'Block A' | 'Block B' | 'Block C'>('Block A');
   const [selectedFloor, setSelectedFloor] = useState('2nd Floor');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('hostel_dark_mode');
+    if (saved !== null) {
+      return saved === 'true';
+    }
+    return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [backendConnected, setBackendConnected] = useState(false);
+
+  // Sync dark mode class to document.documentElement and localStorage
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('hostel_dark_mode', 'true');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('hostel_dark_mode', 'false');
+    }
+  }, [darkMode]);
 
   const navigate = useNavigate();
   const location = useLocation();
