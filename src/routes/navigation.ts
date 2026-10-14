@@ -12,6 +12,9 @@ export interface RouteMapping {
 
 export const APP_ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  AUTH: '/auth',
   DASHBOARD: '/dashboard',
   ADMIN_PORTAL: '/admin',
   STUDENT_PORTAL: '/student',
@@ -44,12 +47,17 @@ export const APP_ROUTES = {
 } as const;
 
 // Normalize any route path to a tab name
-export function getTabFromPath(pathname: string, currentRole: 'admin' | 'student'): { tab: string; viewMode: 'home' | 'portal'; roleOverride?: 'admin' | 'student' } {
+export function getTabFromPath(pathname: string, currentRole: 'admin' | 'student'): { tab: string; viewMode: 'home' | 'portal' | 'auth'; roleOverride?: 'admin' | 'student' } {
   const normalized = pathname.toLowerCase().replace(/\/+$/, '') || '/';
 
   switch (normalized) {
     case '/':
       return { tab: 'Home', viewMode: 'home' };
+
+    case '/login':
+    case '/register':
+    case '/auth':
+      return { tab: 'Auth', viewMode: 'auth' };
 
     case '/admin':
       return { tab: 'Dashboard', viewMode: 'portal', roleOverride: 'admin' };
@@ -143,6 +151,8 @@ export function getPathFromTab(tab: string): string {
   switch (tab) {
     case 'Home':
       return APP_ROUTES.HOME;
+    case 'Auth':
+      return APP_ROUTES.LOGIN;
     case 'Dashboard':
       return APP_ROUTES.DASHBOARD;
     case 'Rooms':

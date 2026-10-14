@@ -50,8 +50,8 @@ interface HostelContextType {
   darkMode: boolean;
   toggleDarkMode: () => void;
   backendConnected: boolean;
-  viewMode: 'home' | 'portal';
-  setViewMode: (mode: 'home' | 'portal') => void;
+  viewMode: 'home' | 'portal' | 'auth';
+  setViewMode: (mode: 'home' | 'portal' | 'auth') => void;
   // Modals
   activeModal: string | null;
   modalData: any;
@@ -148,7 +148,7 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return getTabFromPath(window.location.pathname, role).tab;
   });
 
-  const [viewMode, setViewModeState] = useState<'home' | 'portal'>(() => {
+  const [viewMode, setViewModeState] = useState<'home' | 'portal' | 'auth'>(() => {
     return getTabFromPath(window.location.pathname, role).viewMode;
   });
 
@@ -171,12 +171,16 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [navigate, location.pathname]);
 
-  const setViewMode = useCallback((mode: 'home' | 'portal') => {
+  const setViewMode = useCallback((mode: 'home' | 'portal' | 'auth') => {
     setViewModeState(mode);
     localStorage.setItem('hostel_view_mode', mode);
     if (mode === 'home') {
       if (location.pathname !== '/') {
         navigate('/');
+      }
+    } else if (mode === 'auth') {
+      if (location.pathname !== '/login') {
+        navigate('/login');
       }
     } else {
       const targetPath = getPathFromTab(activeSidebarTab);

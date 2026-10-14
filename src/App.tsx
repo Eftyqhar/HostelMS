@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ModalsContainer } from './components/modals/ModalsContainer';
 import { Toast } from './components/common/Toast';
 import { HomePage } from './components/home/HomePage';
+import { AuthPage } from './components/auth/AuthPage';
 
 const AppLayout: React.FC = () => {
   const { role, activeSidebarTab, darkMode, viewMode } = useHostel();
@@ -21,6 +22,15 @@ const AppLayout: React.FC = () => {
       <div className={darkMode ? 'dark' : ''}>
         <HomePage />
         <ModalsContainer />
+        <Toast />
+      </div>
+    );
+  }
+
+  if (viewMode === 'auth') {
+    return (
+      <div className={darkMode ? 'dark' : ''}>
+        <AuthPage />
         <Toast />
       </div>
     );

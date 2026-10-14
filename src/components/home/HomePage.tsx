@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Building2,
   Shield,
-  User,
   Users,
   Search,
   ArrowRight,
@@ -168,6 +167,14 @@ export const HomePage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToAuth = (initialRole: 'student' | 'admin' = 'student') => {
+    setRole(initialRole);
+    setMobileMenuOpen(false);
+    setViewMode('auth');
+    navigate('/login');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
@@ -283,26 +290,17 @@ export const HomePage: React.FC = () => {
               {darkMode ? <Moon className="w-4 h-4 fill-amber-300 text-amber-300" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </button>
 
-            {/* Student Login Button */}
+            {/* Get Started Button (Opens Login / Registration Portal) */}
             <button
-              onClick={() => navigateTo('student', 'Dashboard', '/student')}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95 bg-white dark:bg-[#0c1524] text-slate-800 dark:text-white border border-slate-300 dark:border-[#1a2b42] hover:bg-slate-50 dark:hover:bg-[#111e33]"
-            >
-              <User className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-              <span>Student Login</span>
-            </button>
-
-            {/* Admin Login Button (Vibrant Mint Green in Dark Mode matching Mockup!) */}
-            <button
-              onClick={() => navigateTo('admin', 'Dashboard', '/admin')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs transition-all cursor-pointer shadow-sm active:scale-95 ${
+              onClick={() => navigateToAuth('student')}
+              className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs transition-all cursor-pointer shadow-md active:scale-95 ${
                 darkMode
                   ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
                   : 'bg-[#0c4a34] hover:bg-[#083525] text-white font-bold'
               }`}
             >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin Login</span>
+              <span>Get Started</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             {/* Mobile Hamburger Toggle */}
@@ -318,20 +316,17 @@ export const HomePage: React.FC = () => {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden px-4 pt-2 pb-5 bg-white dark:bg-[#090e17] border-b border-slate-200 dark:border-[#141f30] space-y-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-150">
-            <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="mb-3">
               <button
-                onClick={() => navigateTo('student', 'Dashboard', '/student')}
-                className="flex items-center justify-center gap-1.5 p-2.5 rounded-lg bg-slate-100 dark:bg-[#0c1524] text-slate-800 dark:text-slate-200 font-bold border border-slate-200 dark:border-[#1a2b42]"
+                onClick={() => navigateToAuth('student')}
+                className={`w-full flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-sm ${
+                  darkMode
+                    ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
+                    : 'bg-[#0c4a34] hover:bg-[#083525] text-white font-bold'
+                }`}
               >
-                <User className="w-4 h-4" />
-                Student Login
-              </button>
-              <button
-                onClick={() => navigateTo('admin', 'Dashboard', '/admin')}
-                className="flex items-center justify-center gap-1.5 p-2.5 rounded-lg bg-[#2ee693] text-[#032817] font-black"
-              >
-                <Shield className="w-4 h-4" />
-                Admin Login
+                <span>Get Started</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             <button
@@ -410,7 +405,7 @@ export const HomePage: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
-                  onClick={() => navigateTo('student', 'Dashboard', '/student')}
+                  onClick={() => navigateToAuth('student')}
                   className={`px-6 py-3 rounded-lg font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer transition-all active:scale-95 shadow-sm ${
                     darkMode
                       ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
@@ -536,7 +531,7 @@ export const HomePage: React.FC = () => {
                 </p>
                 <div className="pt-2">
                   <button
-                    onClick={() => navigateTo('student', 'Dashboard', '/student')}
+                    onClick={() => navigateToAuth('student')}
                     className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 ${
                       darkMode
                         ? 'bg-[#2ee693] hover:bg-[#28cf84] text-[#032817] font-black'
@@ -565,7 +560,7 @@ export const HomePage: React.FC = () => {
                 </p>
                 <div className="pt-2">
                   <button
-                    onClick={() => navigateTo('admin', 'Dashboard', '/admin')}
+                    onClick={() => navigateToAuth('admin')}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold text-white bg-[#2563eb] hover:bg-blue-600 transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     <span>Go to Admin Portal</span>
@@ -1313,6 +1308,11 @@ export const HomePage: React.FC = () => {
             <div>
               <h5 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Important Links</h5>
               <ul className="space-y-2 text-[11px]">
+                <li>
+                  <button onClick={() => navigateToAuth('student')} className="text-[#0c4a34] dark:text-[#2ee693] font-bold hover:underline cursor-pointer transition-colors">
+                    Sign In / Register →
+                  </button>
+                </li>
                 <li>
                   <button onClick={() => navigateTo('student', 'Dashboard', '/student')} className="hover:text-white cursor-pointer transition-colors">
                     Student Portal
