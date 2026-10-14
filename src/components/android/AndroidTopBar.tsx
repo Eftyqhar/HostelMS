@@ -22,7 +22,6 @@ interface AndroidTopBarProps {
 export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar }) => {
   const {
     role,
-    setRole,
     setViewMode,
     activeSidebarTab,
     setActiveSidebarTab,
@@ -125,15 +124,13 @@ export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar })
 
         {/* Right Action Icons & Role Switcher */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Quick Role Toggle Chip */}
-          <button
-            onClick={() => setRole(role === 'admin' ? 'student' : 'admin')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold transition-all border shadow-2xs active:scale-95 cursor-pointer ${
+          {/* Active Role Indicator Badge (No role switching) */}
+          <div
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold border shadow-2xs ${
               role === 'admin'
                 ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
                 : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
             }`}
-            title="Tap to switch between Admin & Student portals"
           >
             {role === 'admin' ? (
               <>
@@ -146,7 +143,7 @@ export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar })
                 <span>Student</span>
               </>
             )}
-          </button>
+          </div>
 
           {/* Home Page Link */}
           <button

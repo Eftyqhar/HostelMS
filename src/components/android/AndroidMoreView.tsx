@@ -19,14 +19,14 @@ import {
   Sun,
   ChevronRight,
   Database,
-  Home
+  Home,
+  LogOut
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
 export const AndroidMoreView: React.FC = () => {
   const {
     role,
-    setRole,
     setViewMode,
     currentStudent,
     setActiveSidebarTab,
@@ -81,10 +81,14 @@ export const AndroidMoreView: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setRole(role === 'admin' ? 'student' : 'admin')}
-          className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] border border-white/25 active:scale-95 transition-all cursor-pointer"
+          onClick={() => {
+            setViewMode('auth');
+            window.history.pushState({}, '', '/login');
+          }}
+          className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] border border-white/25 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
         >
-          Switch Role
+          <LogOut className="w-3 h-3" />
+          <span>Sign Out</span>
         </button>
       </div>
 
