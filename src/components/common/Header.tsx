@@ -9,7 +9,8 @@ import {
   Shield,
   UserCheck,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Home
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const {
     role,
     setRole,
+    setViewMode,
     currentStudent,
     searchQuery,
     setSearchQuery,
@@ -66,6 +68,16 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Public Home Page Button */}
+          <button
+            onClick={() => setViewMode('home')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+            title="Go to Public Website Home Page"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Home Page</span>
+          </button>
+
           {/* Backend Status Indicator */}
           <div
             className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${

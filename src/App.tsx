@@ -9,10 +9,21 @@ import { StudentDashboard } from './components/student/StudentDashboard';
 import { TabContentView } from './components/common/TabContentView';
 import { ModalsContainer } from './components/modals/ModalsContainer';
 import { Toast } from './components/common/Toast';
+import { HomePage } from './components/home/HomePage';
 
 const AppLayout: React.FC = () => {
-  const { role, activeSidebarTab, darkMode } = useHostel();
+  const { role, activeSidebarTab, darkMode, viewMode } = useHostel();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (viewMode === 'home') {
+    return (
+      <div className={darkMode ? 'dark' : ''}>
+        <HomePage />
+        <ModalsContainer />
+        <Toast />
+      </div>
+    );
+  }
 
   return (
     <div

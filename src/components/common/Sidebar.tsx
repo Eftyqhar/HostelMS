@@ -21,7 +21,8 @@ import {
   PhoneCall,
   Headphones,
   ChevronDown,
-  X
+  X,
+  Home
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -31,7 +32,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { role, activeSidebarTab, setActiveSidebarTab, openModal } = useHostel();
+  const { role, activeSidebarTab, setActiveSidebarTab, openModal, setViewMode } = useHostel();
 
   const adminNavItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
@@ -116,6 +117,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Navigation list */}
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+          {/* Back to Public Home Page Button */}
+          <button
+            onClick={() => {
+              setViewMode('home');
+              if (window.innerWidth < 1024) onClose();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-400 hover:text-white bg-blue-950/40 hover:bg-blue-900/40 border border-blue-800/60 transition-colors mb-3 cursor-pointer shadow-xs"
+          >
+            <Home className="w-4 h-4 text-blue-400" />
+            <span>← Public Home Page</span>
+          </button>
+
           {currentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSidebarTab === item.name;

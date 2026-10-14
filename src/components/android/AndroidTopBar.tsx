@@ -10,7 +10,8 @@ import {
   UserCheck,
   CheckCircle2,
   AlertCircle,
-  X
+  X,
+  Home
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -22,6 +23,7 @@ export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar })
   const {
     role,
     setRole,
+    setViewMode,
     activeSidebarTab,
     setActiveSidebarTab,
     currentStudent,
@@ -144,6 +146,15 @@ export const AndroidTopBar: React.FC<AndroidTopBarProps> = ({ onToggleSidebar })
                 <span>Student</span>
               </>
             )}
+          </button>
+
+          {/* Home Page Link */}
+          <button
+            onClick={() => setViewMode('home')}
+            className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-90"
+            title="Public Home Page"
+          >
+            <Home className="w-4 h-4" />
           </button>
 
           {/* Search Button */}

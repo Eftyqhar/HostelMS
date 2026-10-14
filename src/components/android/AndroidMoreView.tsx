@@ -18,7 +18,8 @@ import {
   Moon,
   Sun,
   ChevronRight,
-  Database
+  Database,
+  Home
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -26,6 +27,7 @@ export const AndroidMoreView: React.FC = () => {
   const {
     role,
     setRole,
+    setViewMode,
     currentStudent,
     setActiveSidebarTab,
     darkMode,
@@ -85,6 +87,23 @@ export const AndroidMoreView: React.FC = () => {
           Switch Role
         </button>
       </div>
+
+      {/* Return to Public Website Home Page */}
+      <button
+        onClick={() => setViewMode('home')}
+        className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/60 dark:to-indigo-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 flex items-center justify-between font-bold text-xs shadow-xs active:scale-98 transition-all cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-600 text-white shadow-xs">
+            <Home className="w-4 h-4" />
+          </div>
+          <div className="text-left">
+            <p className="font-extrabold text-xs text-slate-900 dark:text-white">Public Website Home Page</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Campus amenities, dining menu, room inquiry & contact</p>
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      </button>
 
       {/* Grid of Android Apps / Modules */}
       <div>

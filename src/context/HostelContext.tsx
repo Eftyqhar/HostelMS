@@ -48,6 +48,8 @@ interface HostelContextType {
   darkMode: boolean;
   toggleDarkMode: () => void;
   backendConnected: boolean;
+  viewMode: 'home' | 'portal';
+  setViewMode: (mode: 'home' | 'portal') => void;
   // Modals
   activeModal: string | null;
   modalData: any;
@@ -120,6 +122,15 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [selectedFloor, setSelectedFloor] = useState('2nd Floor');
   const [darkMode, setDarkMode] = useState(false);
   const [backendConnected, setBackendConnected] = useState(false);
+
+  const [viewMode, setViewModeState] = useState<'home' | 'portal'>(() => {
+    return (localStorage.getItem('hostel_view_mode') as 'home' | 'portal') || 'home';
+  });
+
+  const setViewMode = (mode: 'home' | 'portal') => {
+    setViewModeState(mode);
+    localStorage.setItem('hostel_view_mode', mode);
+  };
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [modalData, setModalData] = useState<any>(null);
@@ -527,6 +538,8 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         darkMode,
         toggleDarkMode,
         backendConnected,
+        viewMode,
+        setViewMode,
         activeModal,
         modalData,
         openModal,
