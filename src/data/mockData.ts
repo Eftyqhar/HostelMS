@@ -7,7 +7,9 @@ import type {
   Visitor,
   AttendanceRecord,
   Notice,
-  Activity
+  Activity,
+  StudentMessage,
+  LeaveRequest
 } from '../types';
 
 export const INITIAL_STUDENTS: Student[] = [
@@ -559,4 +561,60 @@ export const MONTHLY_PAYMENTS_2026 = [
   { month: 'Jul', collected: 140, pending: 20 },
   { month: 'Aug', collected: 115, pending: 30 },
   { month: 'Sep', collected: 175, pending: 42.5 }
+];
+
+export const INITIAL_MESSAGES: StudentMessage[] = [
+  {
+    id: 'MSG-101',
+    studentId: '1021',
+    studentName: 'Rahim Ahmed',
+    room: 'B-203',
+    recipient: 'Chief Warden Office (Prof. Dr. M. Rahman)',
+    category: 'General Inquiry',
+    subject: 'Parcel collection at main reception gate',
+    message: 'Respected Sir, a study material parcel arrived for me from Dhaka via courier. Requesting permission for entry reception pickup.',
+    requestCallback: true,
+    date: '30 Sep 2026',
+    time: '11:30 AM',
+    status: 'Unread'
+  },
+  {
+    id: 'MSG-102',
+    studentId: '1022',
+    studentName: 'Tanvir Hossain',
+    room: 'A-102',
+    recipient: 'Dining & Mess Kitchen Supervisor',
+    category: 'Dining & Food',
+    subject: 'Special diet request for fever recovery',
+    message: 'Hello, I have had a mild fever for two days. Could I please be served khichuri/porridge for dinner tonight?',
+    requestCallback: false,
+    date: '29 Sep 2026',
+    time: '04:15 PM',
+    status: 'Read'
+  }
+];
+
+export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
+  {
+    id: 'LEV-101',
+    studentId: '1021',
+    studentName: 'Rahim Ahmed',
+    room: 'B-203',
+    reason: 'Family wedding event in Bogura',
+    departureDate: '2026-10-02',
+    returnDate: '2026-10-05',
+    status: 'Pending',
+    appliedDate: '30 Sep 2026'
+  },
+  {
+    id: 'LEV-102',
+    studentId: '1023',
+    studentName: 'Shakil Mahmud',
+    room: 'B-105',
+    reason: 'Medical checkup and dental appointment',
+    departureDate: '2026-09-28',
+    returnDate: '2026-09-29',
+    status: 'Approved',
+    appliedDate: '27 Sep 2026'
+  }
 ];

@@ -10,7 +10,9 @@ import type {
   Visitor,
   AttendanceRecord,
   Notice,
-  Activity
+  Activity,
+  StudentMessage,
+  LeaveRequest
 } from '../types';
 import {
   INITIAL_STUDENTS,
@@ -21,7 +23,9 @@ import {
   INITIAL_VISITORS,
   INITIAL_ATTENDANCE,
   INITIAL_NOTICES,
-  INITIAL_ACTIVITIES
+  INITIAL_ACTIVITIES,
+  INITIAL_MESSAGES,
+  INITIAL_LEAVE_REQUESTS
 } from '../data/mockData';
 import { api } from '../services/api';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -44,6 +48,8 @@ interface HostelContextType {
   attendance: AttendanceRecord[];
   notices: Notice[];
   activities: Activity[];
+  messages: StudentMessage[];
+  leaveRequests: LeaveRequest[];
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   activeSidebarTab: string;
@@ -69,6 +75,11 @@ interface HostelContextType {
   updateComplaintStatus: (id: string, status: Complaint['status']) => void;
   recordPayment: (payment: Partial<Payment>) => void;
   addVisitorRequest: (visitor: Partial<Visitor>) => void;
+  updateVisitorStatus: (id: string, status: Visitor['status']) => void;
+  sendStudentMessage: (data: Partial<StudentMessage>) => void;
+  updateMessageStatus: (id: string, status: StudentMessage['status']) => void;
+  submitLeaveRequest: (data: Partial<LeaveRequest>) => void;
+  updateLeaveRequestStatus: (id: string, status: LeaveRequest['status']) => void;
   toggleMealTaken: (type: MealItem['type']) => void;
   addMeal: (meal: MealItem) => void;
   updateMeal: (mealType: string, updated: Partial<MealItem>) => void;
@@ -134,6 +145,24 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const [notices, setNotices] = useState<Notice[]>(INITIAL_NOTICES);
   const [activities, setActivities] = useState<Activity[]>(INITIAL_ACTIVITIES);
+
+  const [messages, setMessages] = useState<StudentMessage[]>(() => {
+    const saved = localStorage.getItem('hostel_messages');
+    return saved ? JSON.parse(saved) : INITIAL_MESSAGES;
+  });
+
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(() => {
+    const saved = localStorage.getItem('hostel_leave_requests');
+    return saved ? JSON.parse(saved) : INITIAL_LEAVE_REQUESTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hostel_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('hostel_leave_requests', JSON.stringify(leaveRequests));
+  }, [leaveRequests]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBlock, setSelectedBlock] = useState<'Block A' | 'Block B' | 'Block C'>('Block A');
@@ -663,6 +692,94 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     showToast(`Meal "${mealType}" removed from menu.`);
   };
 
+  const updateVisitorStatus = async (id: string, status: Visitor['status']) => {
+    setVisitors(prev => prev.map(v => (v.id === id ? { ...v, status } : v)));
+    setActivities(prev => [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'assignment',
+        title: `Visitor pass #${id} marked as ${status}`,
+        time: 'Just now'
+      },
+      ...prev
+    ]);
+    showToast(`Visitor pass #${id} updated to ${status}.`);
+  };
+
+  const sendStudentMessage = (data: Partial<StudentMessage>) => {
+    const newMsg: StudentMessage = {
+      id: `MSG-${Date.now().toString().slice(-4)}`,
+      studentId: data.studentId || currentStudent.id,
+      studentName: data.studentName || currentStudent.name,
+      room: data.room || currentStudent.room,
+      recipient: data.recipient || 'Chief Warden Office',
+      category: data.category || 'General Inquiry',
+      subject: data.subject || 'Inquiry',
+      message: data.message || '',
+      requestCallback: !!data.requestCallback,
+      date: 'Today',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: 'Unread'
+    };
+
+    setMessages(prev => [newMsg, ...prev]);
+    setActivities(prev => [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'message',
+        title: `${newMsg.studentName} sent message: "${newMsg.subject}"`,
+        time: 'Just now'
+      },
+      ...prev
+    ]);
+    showToast(`Message sent to ${newMsg.recipient.split('(')[0].trim()}!`);
+  };
+
+  const updateMessageStatus = (id: string, status: StudentMessage['status']) => {
+    setMessages(prev => prev.map(m => (m.id === id ? { ...m, status } : m)));
+    showToast(`Message marked as ${status}.`);
+  };
+
+  const submitLeaveRequest = (data: Partial<LeaveRequest>) => {
+    const newLeave: LeaveRequest = {
+      id: `LEV-${Date.now().toString().slice(-4)}`,
+      studentId: data.studentId || currentStudent.id,
+      studentName: data.studentName || currentStudent.name,
+      room: data.room || currentStudent.room,
+      reason: data.reason || 'Personal / Family Leave',
+      departureDate: data.departureDate || new Date().toISOString().split('T')[0],
+      returnDate: data.returnDate || new Date().toISOString().split('T')[0],
+      status: 'Pending',
+      appliedDate: 'Today'
+    };
+
+    setLeaveRequests(prev => [newLeave, ...prev]);
+    setActivities(prev => [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'leave',
+        title: `${newLeave.studentName} applied for leave (${newLeave.reason})`,
+        time: 'Just now'
+      },
+      ...prev
+    ]);
+    showToast('Leave application submitted to Warden Office.');
+  };
+
+  const updateLeaveRequestStatus = (id: string, status: LeaveRequest['status']) => {
+    setLeaveRequests(prev => prev.map(l => (l.id === id ? { ...l, status } : l)));
+    setActivities(prev => [
+      {
+        id: `ACT-${Date.now()}`,
+        type: 'leave',
+        title: `Leave request #${id} was ${status.toLowerCase()} by Warden`,
+        time: 'Just now'
+      },
+      ...prev
+    ]);
+    showToast(`Leave request #${id} ${status}.`);
+  };
+
   return (
     <HostelContext.Provider
       value={{
@@ -682,6 +799,8 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         attendance,
         notices,
         activities,
+        messages,
+        leaveRequests,
         searchQuery,
         setSearchQuery,
         activeSidebarTab,
@@ -705,6 +824,11 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         updateComplaintStatus,
         recordPayment,
         addVisitorRequest,
+        updateVisitorStatus,
+        sendStudentMessage,
+        updateMessageStatus,
+        submitLeaveRequest,
+        updateLeaveRequestStatus,
         toggleMealTaken,
         addMeal,
         updateMeal,

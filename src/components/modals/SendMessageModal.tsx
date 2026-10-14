@@ -4,7 +4,7 @@ import { useHostel } from '../../context/HostelContext';
 import { Send, PhoneCall, HelpCircle } from 'lucide-react';
 
 export const SendMessageModal: React.FC = () => {
-  const { activeModal, closeModal, currentStudent, showToast } = useHostel();
+  const { activeModal, closeModal, currentStudent, sendStudentMessage, showToast } = useHostel();
 
   const [recipient, setRecipient] = useState('Chief Warden Office (Prof. Dr. M. Rahman)');
   const [category, setCategory] = useState('General Inquiry');
@@ -15,12 +15,20 @@ export const SendMessageModal: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) {
-      alert('Please fill out both the subject and message content.');
+      showToast('Please fill out both the subject and message content.');
       return;
     }
 
-    const ticketNumber = `MSG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    showToast(`Message delivered to ${recipient.split('(')[0].trim()}! Ticket reference #${ticketNumber} created.`);
+    sendStudentMessage({
+      recipient,
+      category,
+      subject,
+      message,
+      requestCallback,
+      studentId: currentStudent.id,
+      studentName: currentStudent.name,
+      room: currentStudent.room
+    });
 
     // Reset form
     setSubject('');

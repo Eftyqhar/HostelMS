@@ -113,7 +113,34 @@ export interface Notice {
 
 export interface Activity {
   id: string;
-  type: 'assignment' | 'payment' | 'complaint' | 'checkout' | 'maintenance';
+  type: 'assignment' | 'payment' | 'complaint' | 'checkout' | 'maintenance' | 'message' | 'leave';
   title: string;
   time: string;
+}
+
+export interface StudentMessage {
+  id: string;
+  studentId: string;
+  studentName: string;
+  room: string;
+  recipient: string;
+  category: string;
+  subject: string;
+  message: string;
+  requestCallback: boolean;
+  date: string;
+  time: string;
+  status: 'Unread' | 'Read' | 'Replied';
+}
+
+export interface LeaveRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  room: string;
+  reason: string;
+  departureDate: string;
+  returnDate: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  appliedDate: string;
 }

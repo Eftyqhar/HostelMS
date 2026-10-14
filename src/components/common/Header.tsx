@@ -11,7 +11,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Home,
-  LogOut
+  LogOut,
+  MessageSquare,
+  FileText
 } from 'lucide-react';
 import { useHostel } from '../../context/HostelContext';
 
@@ -30,6 +32,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     darkMode,
     toggleDarkMode,
     complaints,
+    messages,
+    leaveRequests,
+    setActiveSidebarTab,
     backendConnected
   } = useHostel();
 
@@ -37,6 +42,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const pendingComplaintsCount = complaints.filter(c => c.status === 'Pending').length;
+  const unreadMessagesCount = messages.filter(m => m.status === 'Unread').length;
+  const pendingLeavesCount = leaveRequests.filter(l => l.status === 'Pending').length;
+  const totalAdminAlerts = pendingComplaintsCount + unreadMessagesCount + pendingLeavesCount;
+  const studentLeaveStatusCount = leaveRequests.filter(l => l.studentId === currentStudent.id).length;
 
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 transition-colors duration-200">
@@ -128,54 +137,140 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-xs">
-                {role === 'admin' ? '7' : '3'}
-              </span>
+              {(role === 'admin' ? totalAdminAlerts : studentLeaveStatusCount + 1) > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-xs">
+                  {role === 'admin' ? totalAdminAlerts : studentLeaveStatusCount + 1}
+                </span>
+              )}
             </button>
 
             {/* Notification Dropdown */}
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-slate-900 p-3 shadow-xl border border-slate-200 dark:border-slate-800 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-88 rounded-xl bg-white dark:bg-slate-900 p-3 shadow-xl border border-slate-200 dark:border-slate-800 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-96 overflow-y-auto">
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                    {role === 'admin' ? 'Admin Alerts' : 'Student Notifications'}
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>{role === 'admin' ? 'Admin Action Alerts' : 'My Notifications'}</span>
+                    <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-extrabold">
+                      {role === 'admin' ? totalAdminAlerts : studentLeaveStatusCount}
+                    </span>
                   </h4>
-                  <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 cursor-pointer hover:underline">
-                    Mark all read
+                  <span
+                    onClick={() => setShowNotifications(false)}
+                    className="text-[11px] font-medium text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                  >
+                    Close
                   </span>
                 </div>
+
                 <div className="space-y-2 text-xs">
                   {role === 'admin' ? (
                     <>
-                      <div className="flex items-start gap-2.5 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-100 dark:border-amber-900/50">
-                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold">{pendingComplaintsCount} pending room complaints</p>
-                          <span className="text-[10px] text-amber-700 dark:text-amber-400">Needs prompt review</span>
+                      {/* Unread Student Messages */}
+                      {messages.filter(m => m.status === 'Unread').slice(0, 3).map(msg => (
+                        <div
+                          key={msg.id}
+                          onClick={() => {
+                            setShowNotifications(false);
+                            setActiveSidebarTab('Dashboard');
+                          }}
+                          className="flex items-start gap-2.5 p-2 rounded-lg bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 border border-blue-100 dark:border-blue-900/50 cursor-pointer hover:bg-blue-100/60 transition-colors"
+                        >
+                          <MessageSquare className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-xs truncate">
+                              {msg.studentName} ({msg.room}): {msg.subject}
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                              {msg.message}
+                            </p>
+                            <span className="text-[9px] font-semibold text-blue-600 dark:text-blue-400">
+                              {msg.date} at {msg.time} • Click to review
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-medium">Karim Hasan fee payment verified</p>
-                          <span className="text-[10px] text-slate-400">09:15 AM</span>
+                      ))}
+
+                      {/* Pending Leave Requests */}
+                      {leaveRequests.filter(l => l.status === 'Pending').slice(0, 3).map(leave => (
+                        <div
+                          key={leave.id}
+                          onClick={() => {
+                            setShowNotifications(false);
+                            setActiveSidebarTab('Dashboard');
+                          }}
+                          className="flex items-start gap-2.5 p-2 rounded-lg bg-amber-50/60 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 border border-amber-100 dark:border-amber-900/50 cursor-pointer hover:bg-amber-100/60 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-xs truncate">
+                              Leave Pass: {leave.studentName} ({leave.room})
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              Reason: {leave.reason} ({leave.departureDate} to {leave.returnDate})
+                            </p>
+                            <span className="text-[9px] font-semibold text-amber-600 dark:text-amber-400">
+                              Needs Warden Approval
+                            </span>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+
+                      {/* Pending Complaints */}
+                      {pendingComplaintsCount > 0 && (
+                        <div
+                          onClick={() => {
+                            setShowNotifications(false);
+                            setActiveSidebarTab('Complaints');
+                          }}
+                          className="flex items-start gap-2.5 p-2 rounded-lg bg-rose-50/60 dark:bg-rose-950/40 text-rose-950 dark:text-rose-200 border border-rose-100 dark:border-rose-900/50 cursor-pointer hover:bg-rose-100/60 transition-colors"
+                        >
+                          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-semibold">{pendingComplaintsCount} Pending Room Complaints</p>
+                            <span className="text-[10px] text-rose-700 dark:text-rose-400">Click to review complaints tab</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {totalAdminAlerts === 0 && (
+                        <div className="py-4 text-center text-slate-400">
+                          <CheckCircle2 className="w-6 h-6 mx-auto text-emerald-500 mb-1" />
+                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">All caught up!</p>
+                          <p className="text-[10px]">No pending messages or leave requests</p>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>
-                      <div className="flex items-start gap-2.5 p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 border border-blue-100 dark:border-blue-900/50">
-                        <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold">Hostel fee due by 10 Oct 2026</p>
-                          <span className="text-[10px] text-blue-700 dark:text-blue-400">Avoid late penalty fee</span>
+                      {/* Student's Leave Applications */}
+                      {leaveRequests.filter(l => l.studentId === currentStudent.id).map(l => (
+                        <div
+                          key={l.id}
+                          className="flex items-start gap-2.5 p-2 rounded-lg bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 border border-blue-100 dark:border-blue-900/50"
+                        >
+                          <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="font-bold text-xs">
+                              Leave Application ({l.departureDate})
+                            </p>
+                            <span className={`inline-block px-1.5 py-0.2 rounded-full text-[9px] font-bold mt-0.5 ${
+                              l.status === 'Approved'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
+                                : l.status === 'Pending'
+                                ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
+                                : 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300'
+                            }`}>
+                              Status: {l.status}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      ))}
+
+                      <div className="flex items-start gap-2.5 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-medium">Visitor pass for Abdul Karim approved</p>
-                          <span className="text-[10px] text-slate-400">Valid today until 08:00 PM</span>
+                          <p className="font-medium">October Hostel Fee Paid</p>
+                          <span className="text-[10px] text-slate-400">Transaction ID verified</span>
                         </div>
                       </div>
                     </>

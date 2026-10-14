@@ -10,6 +10,7 @@ import { TodayVisitors } from './TodayVisitors';
 import { StudentsTable } from './StudentsTable';
 import { ComplaintsTable } from './ComplaintsTable';
 import { AdminQuickActions } from './AdminQuickActions';
+import { AdminMessagesRequestsView } from './AdminMessagesRequestsView';
 
 export const AdminDashboard: React.FC = () => {
   return (
@@ -31,6 +32,9 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Row 1: KPI Stat Cards */}
       <StatCards />
+
+      {/* Row 1.5: Student Messages & Leave Requests Real-Time Inbox */}
+      <AdminMessagesRequestsView />
 
       {/* Row 2: Occupancy Chart, Monthly Payment Collection, Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
