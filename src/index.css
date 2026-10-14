@@ -19,8 +19,8 @@
 
   :root.dark body,
   .dark body {
-    background-color: #020617;
-    color: #f8fafc;
+    background-color: #060b13;
+    color: #f1f5f9;
   }
 }
 
@@ -33,14 +33,14 @@
   background: #f1f5f9;
 }
 .dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #080e1a;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #1a2638;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
